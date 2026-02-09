@@ -1,38 +1,53 @@
 package com.apps.quantitymeasurement;
-//UC4
 public class QuantityMeasurementApp {
+    /* ---------- EQUALITY (UC3/UC4) ---------- */
 
-    public static boolean demonstrateLengthComparison(
-            double value1, Length.LengthUnit unit1,
-            double value2, Length.LengthUnit unit2) {
-
-        Length length1 = new Length(value1, unit1);
-        Length length2 = new Length(value2, unit2);
-
-        boolean result = length1.equals(length2);
-
-        System.out.println(
-                "Input: Quantity(" + value1 + ", " + unit1 + ") and Quantity(" +
-                        value2 + ", " + unit2 + ")\nOutput: Equal (" + result + ")\n"
-        );
-        return result;
+    public static boolean demonstrateLengthEquality(Length l1, Length l2) {
+        return l1.equals(l2);
     }
 
+    /* ---------- UC5: STATIC CONVERSION ---------- */
+
+    public static double convert(double value,
+                                 LengthUnit from,
+                                 LengthUnit to) {
+
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException("Value must be finite");
+        }
+        if (from == null || to == null) {
+            throw new IllegalArgumentException("Units cannot be null");
+        }
+
+        double baseValue = value * from.getConversionFactor(); // inches
+        return baseValue / to.getConversionFactor();
+    }
+
+    /* ---------- UC5: OVERLOADED INSTANCE CONVERSION ---------- */
+
+    public static Length demonstrateLengthConversion(
+            double value,
+            LengthUnit from,
+            LengthUnit to) {
+
+        return new Length(value, from).convertTo(to);
+    }
+
+    public static Length demonstrateLengthConversion(
+            Length length,
+            LengthUnit to) {
+
+        return length.convertTo(to);
+    }
+
+    /* ---------- MAIN DEMO ---------- */
+
     public static void main(String[] args) {
+        System.out.println(convert(1.0, LengthUnit.FEET, LengthUnit.INCHES)); // 12.0
+        System.out.println(convert(3.0, LengthUnit.YARDS, LengthUnit.FEET));  // 9.0
+        System.out.println(convert(36.0, LengthUnit.INCHES, LengthUnit.YARDS)); // 1.0
 
-        demonstrateLengthComparison(1.0, Length.LengthUnit.YARDS,
-                3.0, Length.LengthUnit.FEET);
-
-        demonstrateLengthComparison(1.0, Length.LengthUnit.YARDS,
-                36.0, Length.LengthUnit.INCHES);
-
-        demonstrateLengthComparison(2.0, Length.LengthUnit.YARDS,
-                2.0, Length.LengthUnit.YARDS);
-
-        demonstrateLengthComparison(2.0, Length.LengthUnit.CENTIMETERS,
-                2.0, Length.LengthUnit.CENTIMETERS);
-
-        demonstrateLengthComparison(1.0, Length.LengthUnit.CENTIMETERS,
-                0.393701, Length.LengthUnit.INCHES);
+        Length l = new Length(100.0, LengthUnit.CENTIMETERS);
+        System.out.println(l.convertTo(LengthUnit.INCHES)); // 39.37 INCHES
     }
 }
