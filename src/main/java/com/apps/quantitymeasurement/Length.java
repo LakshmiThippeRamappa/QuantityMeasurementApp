@@ -1,14 +1,18 @@
 package com.apps.quantitymeasurement;
 
+import java.util.Objects;
+
 public class Length {
 
     private final double value;
     private final LengthUnit unit;
 
-    // Enum to represent supported length units
+    // Base unit: INCHES
     public enum LengthUnit {
         FEET(12.0),
-        INCHES(1.0);
+        INCHES(1.0),
+        YARDS(36.0),           // 1 yard = 36 inches
+        CENTIMETERS(0.393701); // 1 cm = 0.393701 inches
 
         private final double conversionFactor;
 
@@ -16,23 +20,23 @@ public class Length {
             this.conversionFactor = conversionFactor;
         }
 
-        public double getConversionFactor() {
-            return conversionFactor;
+        public double toInches(double value) {
+            return value * conversionFactor;
         }
     }
 
-    // Constructor
     public Length(double value, LengthUnit unit) {
+        if (unit == null)
+            throw new IllegalArgumentException("Unit cannot be null");
+
         this.value = value;
         this.unit = unit;
     }
 
-    // Convert to base unit (inches)
     private double convertToBaseUnit() {
-        return this.value * this.unit.getConversionFactor();
+        return unit.toInches(value);
     }
 
-    // Compare two Length objects
     public boolean compare(Length other) {
         return Double.compare(
                 this.convertToBaseUnit(),
@@ -40,17 +44,16 @@ public class Length {
         ) == 0;
     }
 
-    // equals override (Equality Contract)
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Length length = (Length) o;
+        return compare(length);
+    }
 
-        if (this == obj)
-            return true;
-
-        if (obj == null || this.getClass() != obj.getClass())
-            return false;
-
-        Length other = (Length) obj;
-        return this.compare(other);
+    @Override
+    public int hashCode() {
+        return Objects.hash(convertToBaseUnit());
     }
 }
